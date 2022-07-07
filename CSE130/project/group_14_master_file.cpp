@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <map>
 using namespace std;
 
@@ -11,8 +12,10 @@ using namespace std;
 =============================================================================================================================================================================
 
 
-                                                                    CLASS BASIC DEFINITIONS & GAME STRUCTURE
-                                                                    (check specific sections for TODO and REFERENCETHIS tags)
+                                            CLASS BASIC DEFINITIONS & GAME STRUCTURE
+                                            For technical details of each object please use search (CTRL/CMD + F) for the relevant tag. 
+                                            TODO - list of tasks scoped and assigned for completion.
+                                            REFERENCETHIS - relevant book/online references to make our lives easier.
 
 Class
 
@@ -37,12 +40,13 @@ Construct a Do While loop calling each of the helper_functions.
         5.If player is dead then, exit the game.
         .... 
 
-TODO need to define win condition. 
+TODO need to more clearly define win condition. 
 
 Global non-class Variables (Used for gameplay)
 
-game_running
-battle
+game_running - flag for game running or not. Controlling expression for do while loop.
+battle - flag for battle while loop.
+has_key - user can exit the jail/ win the game
 
         
 
@@ -242,15 +246,18 @@ Purpose: Class contains a logical network of rooms. Each class instance needs to
     public:
         
         
-        Room* set_rooms(int number, string name)
+        Room* create_room_node(int number, string name)
         /*Purpose: Create an instance of Room every time this function is called. 
-          RETURN: pointer to object */
+          RETURN: pointer to isntance of class object set with arguments passed. */
          {
-            //dynamically allocating a room object with new Room(), means we get a pointer to the new object.
-            //Now we can just add the pointers to the Vector as references and not have to worry about the actual object
-            auto* room = new Room(); 
-            *room.set_id(number);
-            *room.set_node_name(name);
+            // Create a room instance and assign a pointer to it for mutation.
+            //dereference the member functions of the class through operator precedence.
+            //Meant to be assigned to a Vector.
+            
+            Room *room = new Room; 
+            (*room).set_id(number);   //https://docs.microsoft.com/en-us/cpp/cpp/pointers-to-members?view=msvc-170
+            (*room).set_node_name(name); // https://docs.microsoft.com/en-us/cpp/cpp/pointer-to-member-operators-dot-star-and-star?view=msvc-170
+                                          // https://docs.microsoft.com/en-us/cpp/cpp/cpp-built-in-operators-precedence-and-associativity?view=msvc-170
             
             return room;
 
@@ -261,10 +268,10 @@ Purpose: Class contains a logical network of rooms. Each class instance needs to
         /* Purpose: From node n, display a list of all possible vertices that link to n 
            Return: vector of rooms that connect to current room. */
         {
-            
+            //
             auto connected_rooms = edges[&nodes];
             return vector<Room*>(connected_rooms.begin(),
-                                connected_rooms.end());
+                                connected_rooms.end()); //right now this will return all paths n+1, but want to limit it to 3 paths. n-1, n, and n+1. 
             
 
         }
@@ -282,9 +289,11 @@ Purpose: Class contains a logical network of rooms. Each class instance needs to
         {
         
             auto& adjacents = edges[&source]; 
+            auto start = adjacents.begin();
+            auto stop = adjacents.end();
             //if edge does not exist between vertices then 
-            if (adjacents.find(&destination) == adjacents.end()) {
-                adjacents.insert(&destination);} 
+            if (find(start, stop, &destination) == adjacents.end()) {   //https://linuxhint.com/find-value-vector-cpp/
+                adjacents.push_back(&destination);} 
              // do nothing if the edge already exists.
 
         }
@@ -294,7 +303,7 @@ Purpose: Class contains a logical network of rooms. Each class instance needs to
 
 class ParseUserInput
 /*
-CLASS DEFINTION
+CLASS DEFINITION
  Take console input from user and search for game keywords. 
  Based on console input, do x action.
  see if one method can do a try/catch for user input.
@@ -302,21 +311,14 @@ CLASS DEFINTION
  */
 {};
 
-class Inventory
-/*
-CLASS DEFINTION 
-Class object to hold on to potions and armor for the player and ememies.
-Class needs to be able to pick up objects and store value on player
-if class implementation is too complicated, fallback is to create two seperate
-inventories for potions and armor. This would be implemented as global vectors
-and calls to vector.size() for number of potions available should be sufficent.
-Then we can add an attributes and methods to the player derived called 
-has_potion and potion_effect with a bool data type to indicate 
-when the option is not possible for the user to execute and how much health a potion heals. 
-To make armor simple, once user equips armor, can not unequip.
-*/ 
-{};
 
+
+struct inventory{
+int potions = 10;
+bool shield_equipped = false;
+bool sword_equipped = false;
+
+};
 
 
 
@@ -347,6 +349,8 @@ Functions will be used in game to modify class objects because they are in globa
 
 */
 
+//ROOM & Map Helper Functions
+
 void load_map()
 /*
 FUNCTION DEFINITION
@@ -356,7 +360,18 @@ FUNCTION DEFINITION
 
 {}; 
 
-auto battle()
+//Player Helper Functions
+
+void class_choice()
+{
+    cout << "Please select your class:" << flush;
+
+
+
+
+};
+
+auto combat()
 /* 
 
 FUNCTION EXPLANATION & PSEUDOCODE
@@ -385,6 +400,35 @@ Else Run
 {};
 
 
+// INVENTORY FUNCTIONS
+
+void use_potion(){
+    cout << "10 Health added";
+    //inventory object potions -= 1
+    //player.get_health()
+    //player.set_health() + 10
+    
+};
+
+void confirm_armor_equip(){
+    cout << "Shield Equipped!";
+    //inventory object shield_equipped = true
+    //player.get_defense()
+    //player.set_defense() + 10
+    
+};
+
+
+void confirm_sword_equip(){
+    cout << "Sword equipped! Slay them all.";
+    //inventory object sword_equipped = true
+    //player.get_attack()
+    //player.set_attack() + 10
+    
+};
+
+
+// HOUSEKEEPING FUNCTIONS
 
 void help_screen(bool combat)
 /*FUNCTION DEFINITION
@@ -405,7 +449,7 @@ Based on expression combat, which is a global variable, set to indicate combat l
     else {cout << flush;
         cout << "Valid navigational commands are the following:" << flush;
         cout << "Left, Right, Straight" << flush;
-        cout << "To quit the game, press quit." << flush};
+        cout << "To quit the game, press quit." << flush;};
 
 
 };
@@ -419,3 +463,53 @@ ASCII art for Title ??? Saved as png file and also called with file_stream
 REFERENCETHIS C++ for the Absolute Beginner, pg 277 */
 
 {};
+
+
+// TODO move classes into separate .h files once build phase complete.
+
+
+
+/*
+=================================================================================================================================================================================================
+
+                                                MAIN GAME
+
+=================================================================================================================================================================================================
+
+
+
+*/
+
+#include <iostream>
+using namespace std;
+
+
+
+//GLOBALS
+bool game_running = true;
+bool player_in_combat = false;
+bool user_has_key = false;
+
+
+
+//FUNCTION FORWARD DECLARATIONS
+
+
+
+
+//GAMEPLAY
+
+int main(void){
+
+
+
+
+
+
+
+
+return 0; }
+
+
+
+
